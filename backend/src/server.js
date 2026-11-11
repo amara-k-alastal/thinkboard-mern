@@ -81,7 +81,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Middleware
-if (process.env.NDDE_ENV !== "production") {
+if (process.env.NODE_ENV !== "production") {
   app.use(cors({
     origin: "http://localhost:5173",
   }));
@@ -99,7 +99,7 @@ app.use((req, res, next) => {
 app.use("/api/notes", notesRoutes);
 
 // Serve React frontend in production
-if (process.env.NDDE_ENV === "production") {
+if (process.env.NODE_ENV === "production") {
   const frontendPath = path.resolve(__dirname, "../../frontend/dist");
 
   app.use(express.static(frontendPath));
