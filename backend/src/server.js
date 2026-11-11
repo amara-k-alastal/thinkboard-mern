@@ -4,21 +4,24 @@ import {connectDB} from "./config/db.js"
 import dotenv from "dotenv"
 import rateLimiter from "./middelware/rateLimiter.js"
 import cors from "cors" // CORS بنحتاجه عشان نخلي الـFrontend والـBackend يتواصلوا بشكل صحيح عبر المتصفح لما يكونوا على مصادر مختلفة.
+import path from "path"
+
 
 dotenv.config();  // هادي اشي مهم جدا لاستدعاء المتغيرات اللي استخدمها ف .env 
 
 const app = express()
 
 const PORT = process.env.PORT || 5001
+const __dirname = path.resolve()
 
 // connectDB()
 
 // middelware : 
-
-app.use(cors({   //«اسمح لواجهة React الموجودة على localhost:5173 إنها تقرأ ردودي.»
-    origin: "http://localhost:5173",
-}))
-
+if(process.env.NDDE_ENV !== "production"){
+    app.use(cors({   //«اسمح لواجهة React الموجودة على localhost:5173 إنها تقرأ ردودي.»
+        origin: "http://localhost:5173",
+    }))
+}
 app.use(express.json())  
 
 app.use(rateLimiter)
@@ -30,8 +33,14 @@ app.use( (req , res , next)=>{
 })
 
 app.use("/api/notes" , notesRoutes)  // بدل م اضل اكتبها ف مل راوت 
-// app.use("/api/product" , productRoutes)  
- 
+
+if(process.env.NDDE_ENV === "production"){
+    app.use(express.static(path.join(__dirname , "../frontend/dist")))
+    app.get("*" , (req , res) =>{
+        res.sendFile(path.join(__dirname , "../frontend" , "dist" , "index.html"))
+    })
+}
+
 
 // app.listen( 5001  , ()=>{
 //     console.log("server started on PORT : " , PORT)
